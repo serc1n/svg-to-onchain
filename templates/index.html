@@ -259,7 +259,7 @@
             const formData = new FormData(this);
             
             try {
-                const response = await fetch('/convert', {
+                const response = await fetch(window.location.origin + '/convert', {
                     method: 'POST',
                     body: formData
                 });
@@ -280,7 +280,7 @@
                 document.getElementById('result').style.display = 'block';
                 
                 const downloadLink = document.getElementById('downloadLink');
-                downloadLink.href = `/download/${data.filename}`;
+                downloadLink.href = `${window.location.origin}/download/${data.filename}`;
                 downloadLink.download = data.filename;
                 downloadLink.textContent = 'Download';
                 downloadLink.style.display = 'inline-block';

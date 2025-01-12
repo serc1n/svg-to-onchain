@@ -65,6 +65,14 @@ def convert() -> Union[tuple[dict, int], dict]:
     print("Invalid file type")  # Debug log
     return jsonify({'error': 'Invalid file type'}), 400
 
+@app.route('/convert', methods=['OPTIONS'])
+def handle_options():
+    response = app.make_default_options_response()
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+    response.headers.add('Access-Control-Allow-Methods', 'POST')
+    return response
+
 @app.route('/download/<filename>')
 def download(filename: str) -> Response:
     return send_file(os.path.join(app.config['OUTPUT_FOLDER'], filename),
@@ -74,7 +82,7 @@ def download(filename: str) -> Response:
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,POST')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
     return response
 
 if __name__ == '__main__':
