@@ -26,9 +26,13 @@ def index() -> str:
 @app.route('/convert', methods=['POST'])
 def convert() -> Union[tuple[dict, int], dict]:
     print("Starting conversion request")  # Debug log
+    response = jsonify({'error': 'Invalid request'})
+    response.headers['Content-Type'] = 'application/json'
+    
     if 'file' not in request.files:
         print("No file in request")  # Debug log
-        return jsonify({'error': 'No file part'}), 400
+        response = jsonify({'error': 'No file part'})
+        return response, 400
     
     file: FileStorage = request.files['file']
     name: str = request.form.get('name', 'Untitled')
@@ -83,7 +87,21 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    # Add CSP headers
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
     return response
+
+@app.errorhandler(500)
+def handle_500(e):
+    return jsonify({'error': str(e)}), 500
+
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({'error': 'Not found'}), 404
+
+@app.errorhandler(400)
+def bad_request(e):
+    return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
