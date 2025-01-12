@@ -35,32 +35,20 @@ def convert() -> Union[tuple[dict, int], dict]:
         return jsonify({'error': 'No selected file'}), 400
     
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        output_path = os.path.join(app.config['OUTPUT_FOLDER'], 
-                                os.path.splitext(filename)[0] + '.txt')
-        
-        # Save uploaded file
-        file.save(filepath)
-        
         # Convert SVG
         try:
-            with open(filepath, 'r') as f:
-                svg_content = f.read()
+            svg_content = file.read().decode('utf-8')
             
             result = convert_svg_to_json(svg_content, name)
-            
-            # Save result
-            with open(output_path, 'w') as f:
-                f.write(result)
             
             return jsonify({
                 'success': True,
                 'result': result,
-                'filename': os.path.basename(output_path)
+                'filename': secure_filename(file.filename).rsplit('.', 1)[0] + '.txt'
             })
             
         except Exception as e:
+            print(f"Error processing file: {str(e)}")  # Add logging
             return jsonify({'error': str(e)}), 500
         
     return jsonify({'error': 'Invalid file type'}), 400
