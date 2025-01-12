@@ -1,15 +1,16 @@
 from flask import Flask, render_template, request, send_file, jsonify, Response
 from typing import Union
 import os
+import tempfile
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 from svg_to_json import convert_svg_to_json
 
 app: Flask = Flask(__name__)
 
-# Configure upload folder
-UPLOAD_FOLDER = 'uploads'
-OUTPUT_FOLDER = 'output'
+# Use temp directory for Vercel
+UPLOAD_FOLDER = tempfile.gettempdir()
+OUTPUT_FOLDER = tempfile.gettempdir()
 ALLOWED_EXTENSIONS = {'svg'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
