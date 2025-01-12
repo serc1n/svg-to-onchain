@@ -25,38 +25,57 @@ def index() -> str:
 
 @app.route('/convert', methods=['POST'])
 def convert() -> Union[tuple[dict, int], dict]:
+    print("Starting conversion request")  # Debug log
     if 'file' not in request.files:
+        print("No file in request")  # Debug log
         return jsonify({'error': 'No file part'}), 400
     
     file: FileStorage = request.files['file']
     name: str = request.form.get('name', 'Untitled')
+    print(f"Processing file: {file.filename}, name: {name}")  # Debug log
     
     if file.filename == '':
+        print("Empty filename")  # Debug log
         return jsonify({'error': 'No selected file'}), 400
     
     if file and allowed_file(file.filename):
         # Convert SVG
         try:
             svg_content = file.read().decode('utf-8')
+            print(f"SVG content length: {len(svg_content)}")  # Debug log
             
             result = convert_svg_to_json(svg_content, name)
+            print("Conversion successful")  # Debug log
             
-            return jsonify({
+            response = jsonify({
                 'success': True,
                 'result': result,
                 'filename': secure_filename(file.filename).rsplit('.', 1)[0] + '.txt'
             })
+            # Add CORS headers
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
             
         except Exception as e:
-            print(f"Error processing file: {str(e)}")  # Add logging
-            return jsonify({'error': str(e)}), 500
+            print(f"Error processing file: {str(e)}")
+            error_response = jsonify({'error': str(e)})
+            error_response.headers.add('Access-Control-Allow-Origin', '*')
+            return error_response, 500
         
+    print("Invalid file type")  # Debug log
     return jsonify({'error': 'Invalid file type'}), 400
 
 @app.route('/download/<filename>')
 def download(filename: str) -> Response:
     return send_file(os.path.join(app.config['OUTPUT_FOLDER'], filename),
                     as_attachment=True)
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST')
+    return response
 
 if __name__ == '__main__':
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)

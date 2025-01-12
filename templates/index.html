@@ -264,6 +264,12 @@
                     body: formData
                 });
                 
+                if (!response.ok) {
+                    const errorData = await response.text();
+                    console.error('Server response:', errorData);
+                    throw new Error('Server error: ' + response.status);
+                }
+                
                 const data = await response.json();
                 
                 if (data.error) {
@@ -280,6 +286,7 @@
                 downloadLink.style.display = 'inline-block';
                 
             } catch (error) {
+                console.error('Error details:', error);
                 alert('Error: ' + error.message);
             }
         };
