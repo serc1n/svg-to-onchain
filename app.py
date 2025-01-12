@@ -10,6 +10,9 @@ app: Flask = Flask(__name__)
 
 ALLOWED_EXTENSIONS = {'svg'}
 
+def allowed_file(filename: str) -> bool:
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @app.route('/')
 def index() -> str:
     return render_template('index.html')
