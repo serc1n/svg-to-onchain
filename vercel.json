@@ -8,25 +8,8 @@
     ],
     "routes": [
         {
-            "src": "/",
-            "dest": "app.py"
-        },
-        {
-            "src": "/convert",
-            "methods": ["POST"],
-            "dest": "app.py"
-        },
-        {
-            "src": "/download/.*",
-            "dest": "app.py"
-        },
-        {
-            "src": "/static/(.*)",
+            "src": "/(.*)",
             "dest": "app.py"
         }
-    ],
-    "env": {
-        "FLASK_ENV": "production",
-        "FLASK_APP": "app.py"
-    }
+    ]
 } 
